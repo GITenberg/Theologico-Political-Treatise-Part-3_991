@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: mBgVeV7lodaHhgnul5NN7hDTuLgXa3JZYqjaDEimh4NlVMzd7lARZ+Fe4Cf/gsWgZi35/f3I6p2DNTBjBT/8jw8P7CtXopHB3sz/VkXuvODvE/8cH95TyPQ3aerTrcM185uZPUC4G6fGPpsnek1ESksoiCyl2PVwPI0iYamR07+KBgt00+flUoWRhSX85aHmWOy/5niwml8GfOVZILQz7NaEw/CDUg2f+w7XJgy7jWhViPOyRL2FNQAKMNX1EbH9oXyGlW4Hm8Tsz6oxTN7y5uJq1VX+/WKDBQG6PFMB3fIz5F11gqVzkkGD9LEZNbpVAXTiV15zQNF1GK6s+V74zpQmYvvmuOB7rxl0t0wMX6IIYZGwCmRkLTFFYkOk8+usg+Pf1iO2AtvgYeS82NLD7MsLO26zGh9zI+yiqrOXfxixxz84qeuaniXR5PRnqR0SZIKdFd5yVINUdvcK4+DF6hJtHQgYdppBx802rvzfr9FyJSdLvyADwcWMLWEr3RQDSuu14jEGRNI388n5ALSCYyClDQRegntqgx3BWK7ZWJ1RyFlVzn9hl69HFWHjzaVa1sc6ZNEe9N3/HifO5sKdY4eoFv+SYrNcl0463NrE+KjzMAaYbE7DMTUiDfqlQNeoyUzKrOjgRE4zYVqR+v9fCgohdLzt8iG9Dea8S1vtYEg=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Theologico-Political-Treatise-Part-3_991
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
